@@ -217,6 +217,34 @@
                       `(bind ~r (fn [~l] ~acc))))
                   `(do ~@body)))))
 
+#?(:clj
+   (defmacro alet
+    "TODO:
+     "
+    [bindings body]
+    (when-not (and (vector? bindings)
+                   (not-empty bindings)
+                   (even? (count bindings)))
+      (throw (IllegalArgumentException. "bindings has to be a vector with even number of elements.")))
+    (when-not (and (list? body)
+                   (symbol? (first body)))
+      (throw (IllegalArgumentException. "the body must be a function call.")))
+    (let [bs (partition 2 bindings)
+          syms (map first bs)
+          sym-count (count syms)
+          aps (map second bs)
+          ;; TODO:
+          ;; - binding renaming, implies changing the symbols in `body` too!
+          ;;  -dependency graph
+          ;; - topological sort
+          ;; - applicative expression generation and combination with `(fapply (fmap curried-fn a1) a2 a3 ...)`
+          f (first body)
+          cf `(curry ~sym-count (fn [~@syms] ~body))
+          fa (first aps)]
+      (if (= sym-count 1)
+        `(fmap ~cf ~fa)
+        `(fapply (fmap ~cf ~fa) ~@(rest aps))))))
+
 (defn- arglists
   [var]
   (get (meta var) :arglists))
