@@ -237,6 +237,8 @@
           ;; - binding renaming, implies changing the symbols in `body` too!
           ;;  -dependency graph
           ;; - topological sort
+          ;; - maximize parallelism. when confronted with various oportunities for desugaring, choose maximum parallelism
+          ;; - careful about ordering
           ;; - applicative expression generation and combination with `(fapply (fmap curried-fn a1) a2 a3 ...)`
           f (first body)
           cf `(curry ~sym-count (fn [~@syms] ~body))
